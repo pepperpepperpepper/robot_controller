@@ -1,0 +1,151 @@
+<div>
+ROBOT CONTROL PANEL
+</div>
+  <p>
+    <label for="amount">Value:</label>
+      <input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" />
+      </p>
+  <div id="slider-container">
+    <div id="spin">
+    </div>
+    <div class="wedge">&nbsp;</div>
+    <div id="joint-1">
+    </div>
+    <div class="wedge">&nbsp;</div>
+    <div id="joint-2">
+    </div>
+    <div class="wedge">&nbsp;</div>
+    <div id="joint-3">
+    </div>
+    <div class="wedge">&nbsp;</div>
+    <div id="flip">
+    </div>
+    <div class="wedge">&nbsp;</div>
+    <div id="open_and_close">
+    </div>
+  </div>
+
+  <div id="live_log">
+  <span id="log_title">LIVE LOG:</br></span>
+  </div>
+  <script>
+  $(function() {
+    var session_id = "record_flipper"+1 + Math.floor(Math.random() * 10);
+    function log_func(s){
+      $("#live_log").append(s +"</br>")
+      $("#live_log")[0].scrollTop = $("#live_log")[0].scrollHeight;
+
+    }
+    log_func("writing to logfile: "+session_id);
+    
+    $.get( "/init", function(data){ log_func(data.toString()) });
+    $( "#spin" ).slider({
+          orientation: "vertical",
+          range: "min",
+          value: 13,
+          min: 5,
+          max: 24,
+          slide: function( event, ui ) {
+            $( "#amount" ).val( ui.value + "00");
+            ui.handle.offsetParent.setAttribute("moved", "true");
+          }
+      }).attr("moved", false);
+    $( "#joint-1" ).slider({
+          orientation: "vertical",
+          range: "min",
+          value: 15,
+          min: 5,
+          max: 26,
+          slide: function( event, ui ) {
+            $( "#amount" ).val( ui.value+ "00" );
+            ui.handle.offsetParent.setAttribute("moved", "true");
+          }
+
+      }).attr("moved", false);
+    //this slider has its values corrected programmatically
+    //val = (abs(val - (ui.max - ui.min))) + ui.min
+    $( "#joint-2" ).slider({
+          orientation: "vertical",
+          range: "min",
+          value: 5,
+          min: 5,
+          max: 26,
+          slide: function( event, ui ) {
+            $( "#amount" ).val( ui.value + "00");
+            ui.handle.offsetParent.setAttribute("moved", "true");
+          }
+
+      }).attr("moved", false);
+    $( "#joint-3" ).slider({
+          orientation: "vertical",
+          range: "min",
+          value: 5,
+          min: 5,
+          max: 15,
+          slide: function( event, ui ) {
+            $( "#amount" ).val( ui.value + "00");
+            ui.handle.offsetParent.setAttribute("moved", "true");
+          }
+
+      }).attr("moved", false);
+    $( "#flip" ).slider({
+          orientation: "vertical",
+          range: "min",
+          value: 15,
+          min: 5,
+          max: 26,
+          slide: function( event, ui ) {
+            $( "#amount" ).val( ui.value + "00");
+            ui.handle.offsetParent.setAttribute("moved", "true");
+          }
+
+      }).attr("moved", false);
+    $( "#open_and_close" ).slider({
+          orientation: "vertical",
+          range: "min",
+          value: 5,
+          min: 5,
+          max: 32,
+          slide: function( event, ui ) {
+            $( "#amount" ).val( ui.value  + "00");
+            ui.handle.offsetParent.setAttribute("moved", "true");
+          }
+
+      }).attr("moved", false);
+      $( "#amount" ).val( "NA" );
+    function callServer(){
+         if ($( "#spin" ).attr("moved") == "true"){
+           $.post( "/write", { session_id: session_id, terminal: 0, value: $( "#spin").slider("value") }, function(data){ log_func(data.toString())} );
+           $("#spin").attr("moved","false");
+         }
+        
+         if ($( "#joint-1" ).attr("moved") == "true"){
+           $.post( "/write", { session_id: session_id, terminal: 1, value: $( "#joint-1").slider("value") }, function(data){ log_func(data.toString())});
+           $("#joint-1").attr("moved","false");
+         }
+         if ($( "#joint-2" ).attr("moved") == "true"){
+           var min = 5;
+           var max = 26;
+           var val = (Math.abs($( "#joint-2").slider("value") - (max - min))) + min
+
+           $.post( "/write", { session_id: session_id, terminal: 2, value: val }, function(data){ log_func(data.toString())} );
+           $("#joint-2").attr("moved","false");
+         }
+         if ($( "#joint-3" ).attr("moved") == "true"){
+           $.post( "/write", { session_id: session_id, terminal: 3, value: $( "#joint-3").slider("value") }, function(data){ log_func(data.toString())} );
+           $("#joint-3").attr("moved","false");
+         }
+         if ($( "#flip" ).attr("moved") == "true"){
+           $.post( "/write", { session_id: session_id, terminal: 4, value: $( "#flip").slider("value") }, function(data){ log_func(data.toString())} );
+           $("#flip").attr("moved","false");
+         }
+         if ($( "#open_and_close" ).attr("moved") == "true"){
+           $.post( "/write", { session_id: session_id, terminal: 5, value: $( "#open_and_close").slider("value") }, function(data){ log_func(data.toString())} );
+           $("#open_and_close").attr("moved","false");
+         }
+    }
+    setInterval(callServer, 1000);
+    });
+
+    </script>    
+         
